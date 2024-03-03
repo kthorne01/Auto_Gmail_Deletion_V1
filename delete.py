@@ -12,6 +12,11 @@ SCOPES = [
     # 'https://www.googleapis.com/auth/gmail.metadata'
     ]
 
+def get_user_email(service):
+    user_profile = service.users().getProfile(userId='me').execute()
+    email_address = user_profile['emailAddress']
+    return email_address
+
 
 def delete_emails(service, user_id, limit=350):
     limit = int(limit) 
@@ -68,17 +73,25 @@ def get_service():
 def lambda_handler(event, context):
     print("Starting lambda_handler")  # Debugging print
     service = get_service()
-    delete_emails(service, 'me', '')
+    delete_emails(service, 'me', '350')
     print("lambda_handler execution completed")  # Debugging print
     return {
         'statusCode': 200,
         'body': 'Emails processed successfully'
     }
 
+
 def main():
-    print("Running script locally")  # Debugging print
+    print("Running script locally") 
     service = get_service()
-    delete_emails(service, 'me', '')
+
+    # Get user email
+    user_email = get_user_email(service)
+    print(f"Deleting emails from account: {user_email}")  
+
+    # Continue with deletion logic
+    delete_emails(service, 'me', '350')
 
 if __name__ == '__main__':
     main()
+
